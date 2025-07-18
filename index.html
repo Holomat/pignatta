@@ -1,0 +1,131 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Federico Pignatta — Proyecto</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- LEFT PANEL: Proyectos -->
+    <div class="left-panel">
+
+      <!-- PROJECT 01 -->
+      <div class="project-section" id="project1">
+        <div class="project-label">[01]</div>
+        <div class="carousel-wrapper bounce-carousel">
+          <div class="carousel-nav prev">❮</div>
+          <div class="carousel-nav next">❯</div>
+          <div class="carousel">
+            <div class="slide"><img src="https://i.imgur.com/Z9bt17d.jpeg" alt="Foto 1"></div>
+            <div class="slide"><img src="https://i.imgur.com/RLKjpin.jpeg" alt="Foto 2"></div>
+            <div class="slide"><img src="https://i.imgur.com/Z9bt17d.jpeg" alt="Foto 3"></div>
+          </div>
+        </div>
+        <div class="project-texts">
+          <p class="project-title"><a href="#">Holomate</a></p>
+          <p class="project-text">Proyecto de investigación y diseño sonoro que combina hardware y software para poner la creación musical al alcance de todas y todos.</p>
+          <p class="project-credit">– Diseño de producto, dirección creativa –</p>
+        </div>
+      </div>
+
+      <!-- PROJECT 02 -->
+      <div class="project-section" id="project2">
+        <div class="project-label">[02]</div>
+        <div class="carousel-wrapper fade-carousel">
+          <div class="carousel-nav prev">❮</div>
+          <div class="carousel-nav next">❯</div>
+          <div class="carousel">
+            <div class="slide"><img src="https://i.imgur.com/Z9bt17d.jpeg" alt="Foto A"></div>
+            <div class="slide"><img src="https://i.imgur.com/Z9bt17d.jpeg" alt="Foto B"></div>
+            <div class="slide"><img src="https://i.imgur.com/Z9bt17d.jpeg" alt="Foto C"></div>
+          </div>
+        </div>
+        <div class="project-texts">
+          <p class="project-title"><a href="#">Proyecto Fade</a></p>
+          <p class="project-text">Este carousel hace la transición mediante opacidad en lugar de deslizar.</p>
+          <p class="project-credit">– Transición por opacidad –</p>
+        </div>
+      </div>
+
+      <!-- PROJECT 03 -->
+      <div class="project-section" id="project3">
+        <div class="project-label">[03]</div>
+        <div class="single-wrapper">
+          <img class="single-img" src="https://i.imgur.com/Z9bt17d.jpeg" alt="Imagen única">
+        </div>
+        <div class="project-texts">
+          <p class="project-title"><a href="#">Proyecto Imagen</a></p>
+          <p class="project-text">Una sola imagen con opción de full‑pantalla al hacer clic.</p>
+          <p class="project-credit">– Solo imagen –</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL: Bio y Contacto -->
+    <div class="right-panel">
+      <div class="studio-title">PIGNATTA</div>
+      <div class="bio">
+        <p>Federico Pignatta González es un creador interdisciplinario ítalo‑uruguayo radicado en Montevideo.</p>
+        <p>Su práctica fusiona pensamiento conceptual con métodos experimentales y tecnologías emergentes.</p>
+      </div>
+      <p class="cta">↳ Disponible para colaboraciones y trabajos por encargo.</p>
+      <div class="contact">
+        <a href="mailto:fedepignatta@gmail.com">fedepignatta@gmail.com</a>
+        <a href="https://instagram.com/efe_defede" target="_blank">instagram.com/efe_defede</a>
+      </div>
+      <div class="footer">
+        <div class="footer-grid">
+          <div class="updated-label">Última actualización:</div>
+          <div class="updated-date">17.07.25</div>
+          <div class="copy">© 2025</div>
+          <div class="time" id="clock">[00:00:00]</div>
+          <div class="site">WWW.PIGNATTA.INFO</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- LIGHTBOX FULLSCREEN -->
+  <div id="lightbox" class="lightbox">
+    <a href="/" class="close">×</a>
+    <div class="lb-wrapper">
+      <div class="lb-nav prev">❮</div>
+      <div class="lb-carousel"></div>
+      <div class="lb-nav next">❯</div>
+    </div>
+  </div>
+
+  <!-- MOBILE-ONLY CONTENT -->
+  <div class="mobile-main">
+    <div class="mobile-info">
+      <div class="studio-title">PIGNATTA</div>
+      <div class="bio">
+        <p>Federico Pignatta González es un creador interdisciplinario ítalo‑uruguayo radicado en Montevideo.</p>
+        <p>Su práctica fusiona pensamiento conceptual con métodos experimentales y tecnologías emergentes.</p>
+      </div>
+      <p class="cta">↳ Disponible para colaboraciones y trabajos por encargo.</p>
+      <div class="contact">
+        <a href="mailto:fedepignatta@gmail.com">fedepignatta@gmail.com</a>
+        <a href="https://instagram.com/efe_defede" target="_blank">instagram.com/efe_defede</a>
+      </div>
+    </div>
+    <div class="mobile-gallery">
+      <div class="gallery-img-wrapper">
+        <button class="gallery-arrow left">❮</button>
+        <img src="https://i.imgur.com/Z9bt17d.jpeg" alt="Foto galería" class="gallery-img" />
+        <button class="gallery-arrow right">❯</button>
+      </div>
+      <div class="gallery-caption"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
