@@ -866,54 +866,54 @@
               step();
             };
 
-            // Abrir lightbox al hacer click en slide
-            Array.from(carousel.querySelectorAll('.slide')).forEach((sl, i) => {
-              sl.onclick = () => {
-                const imageUrls = Array.from(carousel.querySelectorAll('.slide'))
-                  .map(s => s.querySelector('img').src);
-                window.openLightbox(imageUrls, i);
-              };
-            });
-          }
-          
-          // Carrusel tipo fade
-          if (wrapper.classList.contains('fade-carousel')) {
-            const slides = Array.from(carousel.children);
-            let idx = 0;
-            
-            // Activar primera slide
-            slides.forEach(s => s.classList.remove('active'));
-            slides[0].classList.add('active');
-            
-            // Función para cambiar slide con fade
-            function stepFade() {
-              slides[idx].classList.remove('active');
-              idx = (idx + 1) % slides.length;
-              slides[idx].classList.add('active');
-            }
-            
-            // Auto-play fade
-            let autoFade = setInterval(stepFade, 3000);
-            
-            // Pausar en hover
-            wrapper.addEventListener('mouseenter', () => clearInterval(autoFade));
-            wrapper.addEventListener('mouseleave', () => autoFade = setInterval(stepFade, 3000));
-            
-            // Botones de navegación fade
-            wrapper.querySelector('.carousel-nav.prev').onclick = () => {
-              clearInterval(autoFade);
-              slides[idx].classList.remove('active');
-              idx = (idx - 1 + slides.length) % slides.length;
-              slides[idx].classList.add('active');
-            };
-            
-            wrapper.querySelector('.carousel-nav.next').onclick = () => {
-              clearInterval(autoFade);
-              slides[idx].classList.remove('active');
-              idx = (idx + 1) % slides.length;
-              slides[idx].classList.add('active');
-            };
-            
-            // Lightbox para slides fade
-            slides.forEach((sl, i) => {
-              sl.onclick =
+          // Abrir lightbox al hacer click en slide
+        Array.from(carousel.querySelectorAll('.slide')).forEach((sl, i) => {
+          sl.onclick = () => {
+            const imageUrls = Array.from(carousel.querySelectorAll('.slide'))
+              .map(s => s.querySelector('img').src);
+            window.openLightbox(imageUrls, i);
+          };
+        });
+      }
+
+      // CARRUSEL TIPO FADE (no usado pero disponible)
+      if (wrapper.classList.contains('fade-carousel')) {
+        const slides = Array.from(carousel.children);
+        let idx = 0;
+
+        slides.forEach(s => s.classList.remove('active'));
+        slides[0].classList.add('active');
+
+        function stepFade() {
+          slides[idx].classList.remove('active');
+          idx = (idx + 1) % slides.length;
+          slides[idx].classList.add('active');
+        }
+
+        let autoFade = setInterval(stepFade, 3000);
+
+        wrapper.addEventListener('mouseenter', () => clearInterval(autoFade));
+        wrapper.addEventListener('mouseleave', () => autoFade = setInterval(stepFade, 3000));
+
+        wrapper.querySelector('.carousel-nav.prev').onclick = () => {
+          clearInterval(autoFade);
+          slides[idx].classList.remove('active');
+          idx = (idx - 1 + slides.length) % slides.length;
+          slides[idx].classList.add('active');
+        };
+
+        wrapper.querySelector('.carousel-nav.next').onclick = () => {
+          clearInterval(autoFade);
+          slides[idx].classList.remove('active');
+          idx = (idx + 1) % slides.length;
+          slides[idx].classList.add('active');
+        };
+
+        slides.forEach((sl, i) => {
+          sl.onclick = () => {
+            const imageUrls = slides.map(s => s.querySelector('img').src);
+            window.openLightbox(imageUrls, i);
+          };
+        });
+      }
+    }
