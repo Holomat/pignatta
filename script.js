@@ -1,343 +1,330 @@
-// script.js - Portfolio Federico Pignatta
-document.addEventListener('DOMContentLoaded', () => {
-  
-  // ========================================
-  // 1. DETECCIÓN DE DISPOSITIVO MÓVIL
-  // ========================================
-  const isMobile = window.matchMedia('(max-width:600px)').matches;
-  
-  
-  // ========================================
-  // 2. RELOJ EN TIEMPO REAL (FOOTER)
-  // ========================================
-  function updateClock() {
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2, '0');
-    const mm = String(now.getMinutes()).padStart(2, '0');
-    const ss = String(now.getSeconds()).padStart(2, '0');
-    const clock = document.getElementById('clock');
-    if (clock) {
-      clock.textContent = `[${hh}:${mm}:${ss}]`;
-    }
+// Variables globales
+let isPlaying = false;
+let isMuted = false;
+let currentChannelIndex = 0;
+let currentAudio = null;
+
+// Configuración de canales con archivos de audio demo
+const channels = [
+  { 
+    name: "CH 13: CH FRA: YEKI LATEX / DJ SET", 
+    audio: "audio/channel_13.mp3",
+    status: "disponible" 
+  },
+  { 
+    name: "CH 14: CH FRA: BRODODO RAMSES, ANTA...", 
+    audio: "audio/channel_14.mp3",
+    status: "disponible" 
+  },
+  { 
+    name: 'CH 15: "IMAGINARY" TV GUIDE', 
+    audio: "audio/channel_15.mp3",
+    status: "disponible" 
+  },
+  { 
+    name: "CH 16: CH FRA: LA CREOLE / DJ SET", 
+    audio: "audio/channel_16.mp3",
+    status: "disponible" 
+  },
+  { 
+    name: "CH 17: CH FRA: SKINNY MACHO & VIRGIL...", 
+    audio: "audio/channel_17.mp3",
+    status: "disponible" 
   }
-  updateClock();
-  setInterval(updateClock, 1000);
+];
+
+// ===== FUNCIONES DE RELOJ =====
+function updateClock() {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  const clock = document.getElementById('liveClock');
+  if (clock) {
+    clock.textContent = `[${hh}:${mm}:${ss}]`;
+  }
+}
+
+// Inicializar reloj
+updateClock();
+setInterval(updateClock, 1000);
+
+// ===== FUNCIONES DE LA BARRA DE REFLEXIONES =====
+function closeReflectionBar() {
+  const reflectionBar = document.getElementById('reflectionBar');
+  if (reflectionBar) {
+    reflectionBar.classList.add('hidden');
+  }
+}
+
+// ===== FUNCIONES DEL REPRODUCTOR DE AUDIO =====
+function loadAudio(index) {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.removeEventListener('ended', soundNextTrack);
+    currentAudio.removeEventListener('error', handleAudioError);
+  }
   
+  // Solo cargar audio si el canal está disponible
+  if (channels[index].status === "disponible") {
+    currentAudio = new Audio(channels[index].audio);
+    currentAudio.addEventListener('ended', soundNextTrack);
+    currentAudio.addEventListener('error', handleAudioError);
+    currentAudio.volume = isMuted ? 0 : 0.7;
+  } else {
+    currentAudio = null;
+    console.log(`Canal ${index + 1} no disponible aún`);
+  }
+}
+
+function handleAudioError(e) {
+  console.log(`Error cargando audio: ${channels[currentChannelIndex].audio}`);
+  console.log('Verifica que el archivo existe en la carpeta "audio" de tu proyecto');
   
-  // ========================================
-  // 3. LIGHTBOX PARA DESKTOP
-  // ========================================
+  // Cambiar visual del botón de play si hay error
+  const playBtn = document.getElementById('soundPlayBtn');
+  if (playBtn) {
+    playBtn.classList.remove('playing');
+  }
+  isPlaying = false;
+}
+
+function soundTogglePlayPause() {
+  // Verificar si el canal actual está disponible
+  if (channels[currentChannelIndex].status === "próximamente") {
+    console.log(`Canal ${currentChannelIndex + 1} próximamente disponible`);
+    return;
+  }
+
+  if (!currentAudio) {
+    loadAudio(currentChannelIndex);
+  }
+
+  if (!currentAudio) {
+    console.log('No se pudo cargar el audio');
+    return;
+  }
+
+  const playBtn = document.getElementById('soundPlayBtn');
+  
+  if (isPlaying) {
+    currentAudio.pause();
+    if (playBtn) {
+      playBtn.classList.remove('playing');
+      playBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 0v12l9-6z" fill="currentColor"/></svg>';
+    }
+    isPlaying = false;
+  } else {
+    currentAudio.play().catch(e => {
+      console.log('Error reproduciendo audio:', e);
+      handleAudioError(e);
+    });
+    if (playBtn) {
+      playBtn.classList.add('playing');
+      playBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="3" height="8" fill="currentColor"/><rect x="7" y="2" width="3" height="8" fill="currentColor"/></svg>';
+    }
+    isPlaying = true;
+  }
+  
+  console.log(`${isPlaying ? 'Reproduciendo' : 'Pausado'}: ${channels[currentChannelIndex].name}`);
+}
+
+function soundStop() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+  }
+  
+  const playBtn = document.getElementById('soundPlayBtn');
+  if (playBtn) {
+    playBtn.classList.remove('playing');
+    playBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 0v12l9-6z" fill="currentColor"/></svg>';
+  }
+  
+  isPlaying = false;
+  console.log('Audio detenido');
+}
+
+function soundSelectChannel(index) {
+  if (index < 0 || index >= channels.length) return;
+  
+  // Pausar audio actual si está reproduciendo
+  if (isPlaying && currentAudio) {
+    currentAudio.pause();
+    isPlaying = false;
+  }
+  
+  currentChannelIndex = index;
+  
+  // Actualizar selección visual
+  document.querySelectorAll('.sound-channel-item').forEach((item, i) => {
+    item.classList.toggle('selected', i === index);
+  });
+  
+  // Cargar nuevo audio
+  loadAudio(index);
+  
+  // Actualizar botón de play
+  const playBtn = document.getElementById('soundPlayBtn');
+  if (playBtn) {
+    playBtn.classList.remove('playing');
+    playBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 0v12l9-6z" fill="currentColor"/></svg>';
+  }
+  
+  console.log(`Seleccionado: ${channels[index].name}`);
+}
+
+function soundPreviousTrack() {
+  currentChannelIndex = (currentChannelIndex - 1 + channels.length) % channels.length;
+  soundSelectChannel(currentChannelIndex);
+}
+
+function soundNextTrack() {
+  currentChannelIndex = (currentChannelIndex + 1) % channels.length;
+  soundSelectChannel(currentChannelIndex);
+}
+
+// ===== FUNCIONES DE CARRUSELES =====
+function initializeCarousels() {
+  document.querySelectorAll('.project-carousel').forEach(carousel => {
+    const track = carousel.querySelector('.carousel-track');
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    const prevBtn = carousel.querySelector('.prev');
+    const nextBtn = carousel.querySelector('.next');
+    
+    if (!track || !slides.length) return;
+    
+    let currentSlide = 0;
+    const totalSlides = slides.length;
+
+    function updateCarousel() {
+      const offset = -currentSlide * 100;
+      track.style.transform = `translateX(${offset}%)`;
+    }
+
+    if (prevBtn && nextBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        updateCarousel();
+      });
+
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateCarousel();
+      });
+    }
+
+    // Click en slides para abrir lightbox
+    slides.forEach(slide => {
+      slide.addEventListener('click', () => {
+        const img = slide.querySelector('img');
+        if (img && img.src) {
+          openLightbox(img.src);
+        }
+      });
+    });
+  });
+}
+
+// ===== FUNCIONES DE LIGHTBOX =====
+function openLightbox(imageSrc) {
+  if (!imageSrc) return;
+  
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImage = document.getElementById('lightboxImage');
+  
+  if (lightbox && lightboxImage) {
+    lightboxImage.src = imageSrc;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeLightbox() {
   const lightbox = document.getElementById('lightbox');
   if (lightbox) {
-    const lbCarousel = lightbox.querySelector('.lb-carousel');
-    const lbPrev = lightbox.querySelector('.lb-nav.prev');
-    const lbNext = lightbox.querySelector('.lb-nav.next');
-    const lbClose = lightbox.querySelector('.close');
-    let lbIdx = 0;
-    let lbCount = 0;
+    lightbox.classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+}
 
-    // Función para abrir lightbox
-    function openLightbox(urls, startIdx = 0) {
-      if (isMobile) return;
-      lbCarousel.innerHTML = '';
-      const N = urls.length;
-      
-      // Crear slide
-      const makeSlide = src => {
-        const d = document.createElement('div');
-        d.className = 'lb-slide';
-        d.innerHTML = `<img src="${src}">`;
-        return d;
-      };
-      
-      // Agregar slides con duplicados para loop infinito
-      lbCarousel.appendChild(makeSlide(urls[N - 1]));
-      urls.forEach(src => lbCarousel.appendChild(makeSlide(src)));
-      lbCarousel.appendChild(makeSlide(urls[0]));
-      
-      lbCount = N;
-      lbIdx = startIdx + 1;
-      lbCarousel.style.transition = 'none';
-      lbCarousel.style.transform = `translateX(-${100 * lbIdx}%)`;
-      lightbox.classList.add('open');
-    }
+// ===== EVENT LISTENERS GLOBALES =====
+document.addEventListener('DOMContentLoaded', function() {
+  // Inicializar carruseles
+  initializeCarousels();
+  
+  // Inicializar primer canal
+  soundSelectChannel(0);
+  
+  console.log('Portfolio inicializado correctamente');
+  console.log('Diseño: Federico Pignatta | Desarrollo: IA como copiloto');
+});
 
-    // Función para mover slides del lightbox
-    function lbMove(to, animate = true) {
-      lbCarousel.style.transition = animate ? 'transform .7s ease-in-out' : 'none';
-      lbIdx = to;
-      lbCarousel.style.transform = `translateX(-${100 * lbIdx}%)`;
-    }
+// Cerrar lightbox con tecla ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeLightbox();
+  }
+});
 
-    // Event listeners del lightbox
-    lbCarousel.addEventListener('transitionend', () => {
-      if (lbIdx === 0) {
-        lbMove(lbCount, false);
-      } else if (lbIdx === lbCount + 1) {
-        lbMove(1, false);
-      }
-    });
-    
-    lbPrev.onclick = () => lbMove(lbIdx - 1);
-    lbNext.onclick = () => lbMove(lbIdx + 1);
-    lbClose.onclick = e => {
-      e.preventDefault();
-      lightbox.classList.remove('open');
+// Cerrar lightbox al hacer click fuera de la imagen
+document.addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'lightbox') {
+    closeLightbox();
+  }
+});
+
+// ===== FUNCIONES DE UTILIDAD =====
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
     };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
-    // Exponer función globalmente para uso externo
-    window.openLightbox = openLightbox;
+// Manejar redimensionamiento de ventana con debounce
+window.addEventListener('resize', debounce(() => {
+  console.log('Ventana redimensionada');
+}, 250));
+
+// Prevenir comportamientos por defecto en algunos elementos
+document.addEventListener('dragstart', (e) => {
+  if (e.target.tagName === 'IMG') {
+    e.preventDefault();
   }
-
-  
-  // ========================================
-  // 4. CARRUSELES DE PROYECTOS
-  // ========================================
-  document.querySelectorAll('.bounce-carousel, .fade-carousel').forEach(wrapper => {
-    const carousel = wrapper.querySelector('.carousel');
-    if (!carousel) return;
-
-    // ---- VERSIÓN MÓVIL ----
-    if (isMobile) {
-      const slides = Array.from(carousel.querySelectorAll('.slide'));
-      let idx = 0;
-      
-      // Mostrar solo primera slide inicialmente
-      slides.forEach((s, i) => {
-        s.style.display = (i === 0) ? 'block' : 'none';
-      });
-
-      // Botones de navegación móvil
-      const prevBtn = wrapper.querySelector('.carousel-nav.prev');
-      const nextBtn = wrapper.querySelector('.carousel-nav.next');
-      
-      if (prevBtn) {
-        prevBtn.onclick = () => {
-          if (idx > 0) {
-            slides[idx].style.display = 'none';
-            idx -= 1;
-            slides[idx].style.display = 'block';
-          }
-        };
-      }
-      
-      if (nextBtn) {
-        nextBtn.onclick = () => {
-          if (idx < slides.length - 1) {
-            slides[idx].style.display = 'none';
-            idx += 1;
-            slides[idx].style.display = 'block';
-          }
-        };
-      }
-
-      // Gestos táctiles (swipe)
-      let startX = 0;
-      let dx = 0;
-      let moving = false;
-      
-      carousel.addEventListener('touchstart', e => {
-        if (e.touches.length === 1) {
-          startX = e.touches[0].clientX;
-          moving = true;
-        }
-      });
-      
-      carousel.addEventListener('touchmove', e => {
-        if (!moving) return;
-        dx = e.touches[0].clientX - startX;
-      }, { passive: true });
-      
-      carousel.addEventListener('touchend', () => {
-        moving = false;
-        if (dx > 70 && idx > 0) {
-          slides[idx].style.display = 'none';
-          idx -= 1;
-          slides[idx].style.display = 'block';
-        } else if (dx < -70 && idx < slides.length - 1) {
-          slides[idx].style.display = 'none';
-          idx += 1;
-          slides[idx].style.display = 'block';
-        }
-        dx = 0;
-      });
-    }
-    
-    // ---- VERSIÓN DESKTOP ----
-    else {
-      
-      // CARRUSEL TIPO BOUNCE
-      if (wrapper.classList.contains('bounce-carousel')) {
-        let slides = Array.from(carousel.children);
-        let N = slides.length;
-        
-        // Agregar slides duplicadas para loop infinito
-        if (carousel.children.length === N) {
-          carousel.appendChild(slides[0].cloneNode(true));
-          carousel.insertBefore(slides[N - 1].cloneNode(true), carousel.firstChild);
-          slides = Array.from(carousel.children);
-        }
-        
-        let idx = 1;
-        let dir = 1;
-        carousel.style.transition = 'none';
-        carousel.style.transform = `translateX(-${100 * idx}%)`;
-        
-        // Función para avanzar/retroceder
-        function step() {
-          idx += dir;
-          if (idx > N) {
-            dir = -1;
-            idx = N - 1;
-          } else if (idx < 1) {
-            dir = 1;
-            idx = 2;
-          }
-          carousel.style.transition = 'transform 1s cubic-bezier(0.25,0.1,0.25,1)';
-          carousel.style.transform = `translateX(-${100 * idx}%)`;
-        }
-        
-        // Auto-play
-        let auto = setInterval(step, 3000);
-        
-        // Pausar en hover
-        wrapper.addEventListener('mouseenter', () => clearInterval(auto));
-        wrapper.addEventListener('mouseleave', () => auto = setInterval(step, 3000));
-        
-        // Botones de navegación
-        wrapper.querySelector('.carousel-nav.prev').onclick = () => {
-          clearInterval(auto);
-          dir = -1;
-          step();
-        };
-        wrapper.querySelector('.carousel-nav.next').onclick = () => {
-          clearInterval(auto);
-          dir = 1;
-          step();
-        };
-
-        // Abrir lightbox al hacer click en slide
-        Array.from(carousel.querySelectorAll('.slide')).forEach((sl, i) => {
-          sl.onclick = () => {
-            const imageUrls = Array.from(carousel.querySelectorAll('.slide'))
-              .map(s => s.querySelector('img').src);
-            window.openLightbox(imageUrls, i);
-          };
-        });
-      }
-      
-      // CARRUSEL TIPO FADE
-      if (wrapper.classList.contains('fade-carousel')) {
-        const slides = Array.from(carousel.children);
-        let idx = 0;
-        
-        // Activar primera slide
-        slides.forEach(s => s.classList.remove('active'));
-        slides[0].classList.add('active');
-        
-        // Función para cambiar slide con fade
-        function stepFade() {
-          slides[idx].classList.remove('active');
-          idx = (idx + 1) % slides.length;
-          slides[idx].classList.add('active');
-        }
-        
-        // Auto-play fade
-        let autoFade = setInterval(stepFade, 3000);
-        
-        // Pausar en hover
-        wrapper.addEventListener('mouseenter', () => clearInterval(autoFade));
-        wrapper.addEventListener('mouseleave', () => autoFade = setInterval(stepFade, 3000));
-        
-        // Botones de navegación fade
-        wrapper.querySelector('.carousel-nav.prev').onclick = () => {
-          clearInterval(autoFade);
-          slides[idx].classList.remove('active');
-          idx = (idx - 1 + slides.length) % slides.length;
-          slides[idx].classList.add('active');
-        };
-        
-        wrapper.querySelector('.carousel-nav.next').onclick = () => {
-          clearInterval(autoFade);
-          slides[idx].classList.remove('active');
-          idx = (idx + 1) % slides.length;
-          slides[idx].classList.add('active');
-        };
-        
-        // Lightbox para slides fade
-        slides.forEach((sl, i) => {
-          sl.onclick = () => {
-            const imageUrls = slides.map(s => s.querySelector('img').src);
-            window.openLightbox(imageUrls, i);
-          };
-        });
-      }
-    }
-  });
-
-  
-  // ========================================
-  // 5. IMÁGENES INDIVIDUALES PARA LIGHTBOX
-  // ========================================
-  document.querySelectorAll('.single-img').forEach(img => {
-    if (!isMobile) {
-      img.addEventListener('click', () => {
-        window.openLightbox([img.src], 0);
-      });
-    }
-  });
-  
 });
 
+// Detectar dispositivo móvil
+function isMobileDevice() {
+  return window.innerWidth <= 768 || 
+         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
 
-// ========================================
-// 6. GALERÍA PRINCIPAL MÓVIL
-// ========================================
-document.addEventListener("DOMContentLoaded", function() {
-  
-  // Array de imágenes con sus descripciones
-  const images = [
-    {
-      src: "https://i.imgur.com/GlaO5F9.jpeg",
-      caption: "Holomate es un controlador MIDI portátil y experimental. Lanzado como una edición limitada de 50 unidades, es compatible con Holomate Play y Ableton Live."
-    },
-    {
-      src: "https://i.imgur.com/xtpM5d4.jpeg",
-      caption: "Holomate es un controlador MIDI portátil y experimental. Lanzado como una edición limitada de 50 unidades, es compatible con Holomate Play y Ableton Live."
-    },
-    {
-      src: "https://i.imgur.com/HhU3bUH.jpeg",
-      caption: "Holomate es un controlador MIDI portátil y experimental. Lanzado como una edición limitada de 50 unidades, es compatible con Holomate Play y Ableton Live."
-    }
-  ];
-  
-  // Elementos del DOM
-  const imgTag = document.querySelector(".gallery-img");
-  const captionTag = document.querySelector(".gallery-caption");
-  const prevBtn = document.querySelector(".gallery-arrow.left");
-  const nextBtn = document.querySelector(".gallery-arrow.right");
-  
-  let idx = 0;
-  
-  // Función para mostrar imagen y descripción
-  function show(n) {
-    imgTag.src = images[n].src;
-    imgTag.alt = images[n].caption;
-    captionTag.textContent = images[n].caption;
-  }
-  
-  // Mostrar primera imagen
-  show(idx);
-  
-  // Event listeners para navegación
-  prevBtn.onclick = () => {
-    idx = (idx - 1 + images.length) % images.length;
-    show(idx);
-  };
-  
-  nextBtn.onclick = () => {
-    idx = (idx + 1) % images.length;
-    show(idx);
-  };
-  
-});
+// Ajustar comportamiento en móvil
+if (isMobileDevice()) {
+  document.addEventListener('DOMContentLoaded', function() {
+    // Ocultar barra de reflexiones en móvil después de 5 segundos
+    setTimeout(() => {
+      const reflectionBar = document.getElementById('reflectionBar');
+      if (reflectionBar) {
+        reflectionBar.style.opacity = '0';
+        setTimeout(() => {
+          reflectionBar.classList.add('hidden');
+        }, 300);
+      }
+    }, 5000);
+  });
+}
+
+// Log para debugging
+console.log('Script cargado - Radio del Río v1.4');
+console.log('Canales disponibles:', channels.length);
+console.log('Canales configurados:', channels.map(ch => ch.name));
+console.log('Web diseñada por Pignatta - Codificada con IA como copiloto');
